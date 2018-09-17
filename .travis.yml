@@ -1,0 +1,18 @@
+language: python
+python:
+- '3.6'
+virtualenv:
+  system_site_packages: true
+install:
+- pip install -r requirements.txt
+- pip install -r dev-requirements.txt
+script: pytest
+after_script: cd ~
+deploy:
+  provider: pypi
+  user: jacobi
+  on:
+    branch: master
+    tags: true
+  password:
+    secure: wSGYf0Q4HfcTK5GDAUvfEe9NPqvbgh1MTycx/M5m2+ps6h49nHAd0CFZJPGRGrkMFMcRD6HTuVEWmsRT9FpAGaRj9VOlWfzwwKZ7cxeznurHWQvZRCeEUELvbC6lg8PGRB79nL32k6CnonfZ/Wbd22TloNGAdSTAr4DYECzJ+gfR8ieBUjHxrKtCxQTw5mQYRydswaR2/xmBa/rqCv2/u2J1NzWsza+0o5DxV1RC7T1QmXa+M7XcXMnuV4vK1b2pZcTPKnrGS2mx2eqfpnGbRo1s6Mv5gOdjMhhpgVW8FmU8zP78JV8aF9Scpdpah+O2n6WlppfU6Cn3i6p9gYFFfEauW9wVkQWYOcMlgWCW/Lx3/pC6WunoPDNSfa/95ocezIiankynlr+L5GaX+8dkifaDJANoIIuO/1Ha9bTvbklPjoXV9c8RXkB7f1LIAEGzO0XnGStgINkm44T4BcoR6LXOrAA8Ls8DjAErlA9Be652Y0h+TJKCLnP6YBJDA//R4ckgCtIKTevPsY+/W6K8id+eNUBocJkLbKK3TemDKYx7MKkMYcCZNts/wf+l6pyUely8NeiJQ6Z9/A7qUOxiNX3zRDD6CIwDc4l7sXpSV88xZbafLycdOsbQzCRtgGNlQN3zk6ijoemzXZcgG2wTpNZ+FgCL0iBdHw7vmtnCt8Q=
