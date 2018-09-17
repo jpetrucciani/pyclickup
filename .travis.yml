@@ -1,11 +1,11 @@
 language: python
-distro: xenial
+dist: xenial
 python:
 - '3.6'
 install:
 - pip install -r requirements.txt
 - pip install -r dev-requirements.txt
-script: pytest
+script: make
 after_script: cd ~
 deploy:
   provider: pypi

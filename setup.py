@@ -15,7 +15,7 @@ setup(
     url="https://github.com/jpetrucciani/{}.git".format(LIBRARY),
     download_url="https://github.com/jpetrucciani/{}.git".format(LIBRARY),
     license="LICENSE",
-    packages=[LIBRARY],
+    packages=[LIBRARY, "{}.models".format(LIBRARY)],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.4",
