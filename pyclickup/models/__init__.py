@@ -70,6 +70,12 @@ class List(BaseModel):
             self.project.space.team.id, list_ids=[self.id], **kwargs
         )
 
+    def get_all_tasks(self, **kwargs):
+        """gets every task for this list"""
+        return self._client._get_all_tasks(
+            self.project.space.team.id, list_ids=[self.id], **kwargs
+        )
+
 
 class Project(BaseModel):
     """project model"""
@@ -77,9 +83,11 @@ class Project(BaseModel):
     def __init__(self, data, **kwargs):
         """override to parse the members"""
         super(Project, self).__init__(data, **kwargs)
-        self.statuses = [
-            Status(x, client=self._client, project=self) for x in self.statuses
-        ]
+        self.statuses = (
+            [Status(x, client=self._client, project=self) for x in self.statuses]
+            if self.statuses
+            else []
+        )
         self.lists = [List(x, client=self._client, project=self) for x in self.lists]
 
     def __repr__(self):
@@ -106,7 +114,11 @@ class Space(BaseModel):
     def __init__(self, data, **kwargs):
         """override to parse the members and statuses"""
         super(Space, self).__init__(data, **kwargs)
-        self.members = [User(x, client=self._client, space=self) for x in self.members]
+        # self.members = (
+        #     [User(x["user"], client=self._client, space=self) for x in self.members]
+        #     if self.members
+        #     else []
+        # )
         self.statuses = [
             Status(x, client=self._client, space=self) for x in self.statuses
         ]
@@ -177,11 +189,17 @@ class Task(BaseModel):
         self.status = Status(self.status, client=self._client)
         self.tags = [Tag(x) for x in self.tags]
         self.assignees = [User(x, client=self._client) for x in self.assignees]
-        self.due_date = ts_to_datetime(self.due_date)
-        self.start_date = ts_to_datetime(self.start_date)
-        self.date_created = ts_to_datetime(self.date_created)
-        self.date_updated = ts_to_datetime(self.date_updated)
-        self.date_closed = ts_to_datetime(self.date_closed)
+        self.due_date = ts_to_datetime(self.due_date) if self.due_date else None
+        self.start_date = ts_to_datetime(self.start_date) if self.start_date else None
+        self.date_created = (
+            ts_to_datetime(self.date_created) if self.date_created else None
+        )
+        self.date_updated = (
+            ts_to_datetime(self.date_updated) if self.date_updated else None
+        )
+        self.date_closed = (
+            ts_to_datetime(self.date_closed) if self.date_closed else None
+        )
 
     def __repr__(self):
         """repr"""

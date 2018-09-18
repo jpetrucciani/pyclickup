@@ -17,6 +17,15 @@ def test_client():
 class ClickUp:
     """client http wrapper"""
 
+    task_boolean_options = ["reverse", "subtasks", "include_closed"]
+    task_list_options = [
+        "space_ids",
+        "project_ids",
+        "list_ids",
+        "statuses",
+        "assignees",
+    ]
+
     def __init__(self, token, api_url=API_URL, cache=True, debug=False):
         """creates a new client"""
         if not token:
@@ -89,7 +98,7 @@ class ClickUp:
     def _get_tasks(
         self,
         team_id,
-        page=None,  # integer
+        page=None,  # integer - it appears to fetch 100 at a time
         order_by=None,  # string, [id, created, updated, due_date]
         reverse=None,  # bool
         subtasks=None,  # bool
@@ -109,13 +118,33 @@ class ClickUp:
     ):
         """fetches the tasks according to the given options"""
         params = locals()
+
+        for option in self.task_boolean_options:
+            if params[option] is not None:
+                params[option] = str(params[option]).lower()
+
         options = [
-            "{}={}".format(x, params[x])
+            "{}{}={}".format(
+                x,
+                "[]" if x in self.task_list_options else "",
+                ",".join(params[x]) if x in self.task_list_options else params[x],
+            )
             for x in params
             if params[x] is not None and x not in ["team_id", "self", "kwargs"]
         ]
         path = "team/{}/task?{}".format(team_id, "&".join(options))
         return [Task(x, client=self) for x in self.get(path)["tasks"]]
+
+    def _get_all_tasks(self, team_id, **kwargs):
+        """get all tasks wrapper"""
+        tasks = []
+        page_count = 0
+        task_page = self._get_tasks(team_id, page=page_count, **kwargs)
+        while task_page:
+            tasks += task_page
+            page_count += 1
+            task_page = self._get_tasks(team_id, page=page_count, **kwargs)
+        return tasks
 
     def _create_task(
         self,
