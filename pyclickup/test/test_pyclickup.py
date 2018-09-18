@@ -59,12 +59,6 @@ def test_spaces():
     assert isinstance(space.statuses, list)
     assert isinstance(space.statuses[0], Status)
 
-    assert isinstance(space.members, list)
-    assert isinstance(space.members[0], User)
-
-    assert space.members[0].id == 123
-    assert space.members[0].username == "John Doe"
-
 
 def test_projects():
     """testing if we can access projects"""
