@@ -4,6 +4,7 @@ pip setup file
 """
 from pyclickup.globals import __version__, LIBRARY
 from setuptools import setup, find_packages
+from m2r import convert
 
 
 with open("README.md") as readme:
@@ -14,7 +15,7 @@ setup(
     name=LIBRARY,
     version=__version__,
     description="A python wrapper for the ClickUp API",
-    long_description=long_description,
+    long_description=convert(long_description),
     author="Jacobi Petrucciani",
     author_email="jacobi@mimirhq.com",
     keywords="clickup python",
