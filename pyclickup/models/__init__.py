@@ -2,7 +2,7 @@
 models for each object in the clickup api
 """
 import json
-from pyclickup.globals import LIBRARY
+from pyclickup.globals import DEFAULT_STATUSES, LIBRARY
 from pyclickup.utils.text import snakeify, ts_to_datetime, datetime_to_ts
 
 
@@ -83,11 +83,16 @@ class Project(BaseModel):
     def __init__(self, data, **kwargs):
         """override to parse the members"""
         super(Project, self).__init__(data, **kwargs)
-        self.statuses = (
-            [Status(x, client=self._client, project=self) for x in self.statuses]
-            if self.statuses
-            else []
-        )
+        if self.override_statuses:
+            self.statuses = (
+                [Status(x, client=self._client, project=self) for x in self.statuses]
+                if self.statuses
+                else []
+            )
+        else:
+            self.statuses = [
+                Status(x, client=self._client, project=self) for x in DEFAULT_STATUSES
+            ]
         self.lists = [List(x, client=self._client, project=self) for x in self.lists]
 
     def __repr__(self):
@@ -107,6 +112,12 @@ class Project(BaseModel):
             self.space.team.id, project_ids=[self.id], **kwargs
         )
 
+    def get_all_tasks(self, **kwargs):
+        """gets all of the tasks for the project"""
+        return self._client._get_all_tasks(
+            self.space.team.id, project_ids=[self.id], **kwargs
+        )
+
 
 class Space(BaseModel):
     """space model"""
@@ -114,11 +125,6 @@ class Space(BaseModel):
     def __init__(self, data, **kwargs):
         """override to parse the members and statuses"""
         super(Space, self).__init__(data, **kwargs)
-        # self.members = (
-        #     [User(x["user"], client=self._client, space=self) for x in self.members]
-        #     if self.members
-        #     else []
-        # )
         self.statuses = [
             Status(x, client=self._client, space=self) for x in self.statuses
         ]
@@ -142,6 +148,10 @@ class Space(BaseModel):
     def get_tasks(self, **kwargs):
         """gets tasks for the space"""
         return self._client._get_tasks(self.team.id, space_ids=[self.id], **kwargs)
+
+    def get_all_tasks(self, **kwargs):
+        """gets all the tasks for the space"""
+        return self._client._get_all_tasks(self.team.id, space_ids=[self.id], **kwargs)
 
 
 class Team(BaseModel):
@@ -169,6 +179,10 @@ class Team(BaseModel):
     def get_tasks(self, **kwargs):
         """gets tasks for the team"""
         return self._client._get_tasks(self.id, **kwargs)
+
+    def get_all_tasks(self, **kwargs):
+        """gets all of the tasks for the team"""
+        return self._client._get_all_tasks(self.id, **kwargs)
 
 
 class Tag(BaseModel):
