@@ -6,7 +6,7 @@ import urllib.parse
 from pyclickup.globals import __version__, API_URL, LIBRARY, TEST_TOKEN, TEST_API_URL
 from pyclickup.models import User, Task, Team
 from pyclickup.models.error import RateLimited
-from pyclickup.utils.text import datetime_to_ts
+from pyclickup.utils.text import datetime_to_ts, filter_locals
 
 
 def test_client():
@@ -117,10 +117,10 @@ class ClickUp:
         **kwargs
     ):
         """fetches the tasks according to the given options"""
-        params = locals()
+        params = filter_locals(locals(), extras=["team_id"])
 
         for option in self.task_boolean_options:
-            if params[option] is not None:
+            if option in params:
                 params[option] = str(params[option]).lower()
 
         options = [
@@ -130,7 +130,6 @@ class ClickUp:
                 ",".join(params[x]) if x in self.task_list_options else params[x],
             )
             for x in params
-            if params[x] is not None and x not in ["team_id", "self", "kwargs"]
         ]
         path = "team/{}/task?{}".format(team_id, "&".join(options))
         return [Task(x, client=self) for x in self.get(path)["tasks"]]
