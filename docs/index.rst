@@ -27,6 +27,11 @@ pyclickup
    :alt: Code style: black
 
 
+.. image:: https://readthedocs.org/projects/pyclickup/badge/?version=latest
+    :target: https://pyclickup.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
+
 A python wrapper for the ClickUp API
 
 
