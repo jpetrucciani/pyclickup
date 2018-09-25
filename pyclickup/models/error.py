@@ -1,12 +1,13 @@
 """
 error models for pyclickup
 """
+from typing import Any
 
 
 class PyClickUpException(Exception):
     """base pyclickup exception class"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         extra = ""
         if args:
             extra = '\n| extra info: "{extra}"'.format(extra=args[0])

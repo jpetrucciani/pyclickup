@@ -6,6 +6,8 @@ test-warnings: false
 ignore-patterns:
   - (^|/)\..+
   - .*\.html
+  - docs/.*
+  - tmp.py
 
 pylint:
   disable:

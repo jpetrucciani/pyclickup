@@ -9,12 +9,7 @@ from colorama import init, Fore, Style
 init()
 
 
-def manual_raise():
-    """manually raise an exception"""
-    raise SystemExit(1)
-
-
-def dbg(text):
+def dbg(text: str) -> None:
     """debug printer for tests"""
     if isinstance(text, dict):
         text = json.dumps(text, sort_keys=True, indent=2)

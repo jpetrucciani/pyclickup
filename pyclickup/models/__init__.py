@@ -4,12 +4,13 @@ models for each object in the clickup api
 import json
 from pyclickup.globals import DEFAULT_STATUSES, LIBRARY
 from pyclickup.utils.text import snakeify, ts_to_datetime, datetime_to_ts
+from typing import Any
 
 
 class BaseModel:
     """basic model that just parses camelCase json to snake_case keys"""
 
-    def __init__(self, data, client=None, **kwargs):
+    def __init__(self, data: dict, client: Any = None, **kwargs: Any) -> None:
         """constructor"""
         self._data = {**data, **kwargs}
         self._json = self._jsond(data)
@@ -18,11 +19,11 @@ class BaseModel:
         for key in self._data:
             setattr(self, snakeify(key), self._data[key])
 
-    def _jsond(self, json_data):
+    def _jsond(self, json_data: dict) -> str:
         """json dumps"""
         return json.dumps(json_data)
 
-    def _jsonl(self, dictionary):
+    def _jsonl(self, dictionary: str) -> dict:
         """json loads"""
         return json.loads(dictionary)
 
@@ -30,7 +31,7 @@ class BaseModel:
 class User(BaseModel):
     """user object"""
 
-    def __init__(self, data, **kwargs):
+    def __init__(self, data: dict, **kwargs: Any) -> None:
         """override"""
         if "user" in data.keys():
             data = data["user"]

@@ -1,7 +1,7 @@
 repo = pyclickup
 base_command = pytest
 coverage = --cov-config setup.cfg --cov=$(repo)
-with_report = --cov-report html
+html_report = --cov-report html
 term_report = --cov-report term
 xml_report = --cov-report xml
 reports = $(html_report) $(term_report) $(xml_report)

@@ -1,11 +1,19 @@
 """
 a base test suite for pyclickup
 """
-import datetime
+from datetime import datetime
 from pyclickup.models import List, Project, Space, Status, Tag, Task, Team, User
 from pyclickup.models.client import test_client
 
+
 CLICKUP = test_client()
+
+
+def is_list_of_type(check_list, check_type):
+    """helper function for checking if it's a list and of a specific type"""
+    assert isinstance(check_list, list)
+    assert isinstance(check_list[0], check_type)
+    return True
 
 
 def test_user():
@@ -17,6 +25,7 @@ def test_user():
     assert user.username == "John Doe"
     assert user.color
     assert user.profile_picture
+    assert "<pyclickup.User" in str(user)
 
 
 def test_teams():
@@ -27,8 +36,8 @@ def test_teams():
     team = teams[0]
     assert isinstance(team, Team)
     assert team.id == "1234"
-    assert isinstance(team.members, list)
-    assert isinstance(team.members[0], User)
+    assert is_list_of_type(team.members, User)
+    assert "<pyclickup.Team" in str(team)
 
 
 def test_get_team_by_id():
@@ -36,8 +45,7 @@ def test_get_team_by_id():
     team = CLICKUP.get_team_by_id("1234")
     assert isinstance(team, Team)
     assert team.id == "1234"
-    assert isinstance(team.members, list)
-    assert isinstance(team.members[0], User)
+    assert is_list_of_type(team.members, User)
 
 
 def test_spaces():
@@ -45,19 +53,16 @@ def test_spaces():
     team = CLICKUP.teams[0]
     spaces = team.spaces
 
-    assert spaces
-    assert isinstance(spaces, list)
+    assert is_list_of_type(spaces, Space)
     space = spaces[0]
 
-    assert space
-    assert isinstance(space, Space)
     assert space.id == "12345"
     assert space.name == "My Space"
     assert space.private
     assert space.statuses
+    assert "<pyclickup.Space" in str(space)
 
-    assert isinstance(space.statuses, list)
-    assert isinstance(space.statuses[0], Status)
+    assert is_list_of_type(space.statuses, Status)
 
 
 def test_projects():
@@ -67,20 +72,31 @@ def test_projects():
     space = spaces[0]
     projects = space.projects
 
-    assert projects
-    assert isinstance(projects, list)
+    assert is_list_of_type(projects, Project)
     project = projects[0]
-    assert project
-    assert isinstance(project, Project)
 
     assert project.id == "1234"
     assert project.name == "My project"
+    assert "<pyclickup.Project" in str(project)
 
-    assert isinstance(project.statuses, list)
-    assert isinstance(project.statuses[0], Status)
+    assert is_list_of_type(project.statuses, Status)
+    assert is_list_of_type(project.lists, List)
 
-    assert isinstance(project.lists, list)
-    assert isinstance(project.lists[0], List)
+
+def test_lists():
+    """testing if we can access lists"""
+    team = CLICKUP.teams[0]
+    spaces = team.spaces
+    space = spaces[0]
+    project = space.projects[0]
+    lists = project.lists
+
+    assert is_list_of_type(lists, List)
+    list_0 = lists[0]
+    assert "<pyclickup.List" in str(list_0)
+
+    tasks = list_0.get_tasks()
+    assert is_list_of_type(tasks, Task)
 
 
 def test_tasks():
@@ -97,14 +113,17 @@ def test_tasks():
     assert isinstance(task.status, Status)
     assert isinstance(task.creator, User)
 
-    assert isinstance(task.assignees, list)
-    assert isinstance(task.assignees[0], User)
+    assert is_list_of_type(task.assignees, User)
+    assert is_list_of_type(task.tags, Tag)
+    assert "<pyclickup.Tag" in str(task.tags[0])
 
-    assert isinstance(task.tags, list)
-    assert isinstance(task.tags[0], Tag)
+    assert isinstance(task.date_created, datetime)
+    assert isinstance(task.date_updated, datetime)
+    assert isinstance(task.date_closed, datetime)
+    assert isinstance(task.due_date, datetime)
+    assert isinstance(task.start_date, datetime)
+    assert "<pyclickup.Task" in str(task)
+    assert "<pyclickup.Status" in str(task.status)
 
-    assert isinstance(task.date_created, datetime.datetime)
-    assert isinstance(task.date_updated, datetime.datetime)
-    assert isinstance(task.date_closed, datetime.datetime)
-    assert isinstance(task.due_date, datetime.datetime)
-    assert isinstance(task.start_date, datetime.datetime)
+    all_tasks_for_team = team.get_all_tasks(page_limit=4)
+    assert is_list_of_type(all_tasks_for_team, Task)

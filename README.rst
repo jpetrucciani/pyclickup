@@ -49,7 +49,7 @@ Basic Usage
    from pyclickup import ClickUp
 
 
-   clickup = ClickUp('$ACCESS_TOKEN')
+   clickup = ClickUp("$ACCESS_TOKEN")
 
    main_team = clickup.teams[0]
    main_space = main_team.spaces[0]
