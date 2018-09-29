@@ -4,6 +4,8 @@ pip setup file
 """
 from setuptools import setup, find_packages
 
+LIBRARY = 'pyclickup'
+
 
 with open("README.rst") as readme:
     long_description = readme.read()
