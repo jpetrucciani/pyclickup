@@ -11,6 +11,11 @@ with open("README.rst") as readme:
     long_description = readme.read()
 
 
+with open("requirements.txt") as requirements:
+    install_requires = requirements.read().split("\n")
+    install_requires = [x.strip() for x in install_requires if x.strip()]
+
+
 def find_version(*file_paths):
     import os
     import re
@@ -42,6 +47,7 @@ setup(
     download_url="https://github.com/jpetrucciani/{}.git".format(LIBRARY),
     license="LICENSE",
     packages=find_packages(),
+    install_requires=install_requires,
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
