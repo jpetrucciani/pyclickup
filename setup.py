@@ -2,7 +2,6 @@
 """
 pip setup file
 """
-from pyclickup.globals import __version__, LIBRARY
 from setuptools import setup, find_packages
 
 
