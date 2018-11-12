@@ -77,6 +77,43 @@ class List(BaseModel):
             self.project.space.team.id, list_ids=[self.id], **kwargs
         )
 
+    def create_task(
+        self,
+        name,  # string
+        content="",  # optional, but nice
+        assignees=None,  # list of User objects, or int IDs
+        status="Open",  # needs to match your given statuses for the list
+        priority=0,  # default to no priority (0). check Task class for enum
+        due_date=None,  # integer posix time, or python datetime
+    ):
+        """
+        creates a task within this list, returning the id of the task.
+
+        unfortunately right now, there is no way to retreive a task by id
+        this will return the ID of the newly created task,
+        but you'll need to re-query the list for tasks to get the task object
+        """
+        task_data = {"name": name, "content": content, "status": status}
+
+        if assignees and isinstance(list, assignees):
+            if isinstance(User, assignees[0]):
+                task_data["assignees"] = [x.id for x in assignees]
+            elif isinstance(int, assignees[0]):
+                task_data["assignees"] = assignees
+
+        if due_date:
+            task_data["due_date"] = (
+                due_date if isinstance(due_date, int) else datetime_to_ts(due_date)
+            )
+
+        if priority > 0:
+            task_data["priority"] = priority
+
+        new_task_call = self._client.post(
+            "list/{}/task".format(self.id), data=task_data
+        )
+        return new_task_call["id"]
+
 
 class Project(BaseModel):
     """project model"""
@@ -196,6 +233,15 @@ class Tag(BaseModel):
 
 class Task(BaseModel):
     """Task object"""
+
+    class Priority:
+        """task priority enum"""
+
+        NONE = 0
+        URGENT = 1
+        HIGH = 2
+        NORMAL = 3
+        LOW = 4
 
     def __init__(self, data, **kwargs):
         """override to parse the data"""
