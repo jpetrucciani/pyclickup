@@ -280,11 +280,17 @@ class Task(BaseModel):
         path = "task/{}".format(self.id)
         data = {
             "assignees": {
-                "add": [x if isinstance(x, int) else x.id for x in add_assignees],
-                "rem": [x if isinstance(x, int) else x.id for x in remove_assignees],
+                "add": [],
+                "rem": []
             }
         }
 
+        if add_assignees:
+            data["assignees"]["add"].append(add_assignees if isinstance(add_assignees, int)
+                                            else add_assignees.id)
+        if remove_assignees:
+            data["assignees"]["rem"].append(remove_assignees if isinstance(remove_assignees, int)
+                                            else remove_assignees.id)
         if name:
             data["name"] = name
         if content:
