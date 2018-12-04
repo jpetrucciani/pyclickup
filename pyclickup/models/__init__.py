@@ -277,9 +277,9 @@ class Task(BaseModel):
         due_date=None,  # integer posix time, or python datetime
     ):
         """updates the task"""
-        if add_assignees is None:
+        if not add_assignees:
             add_assignees = []
-        if remove_assignees is None:
+        if not remove_assignees:
             remove_assignees = []
         path = "task/{}".format(self.id)
         data = {

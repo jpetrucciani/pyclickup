@@ -4,7 +4,7 @@ pip setup file
 """
 from setuptools import setup, find_packages
 
-LIBRARY = 'pyclickup'
+LIBRARY = "pyclickup"
 
 
 with open("README.rst") as readme:
@@ -19,6 +19,7 @@ with open("requirements.txt") as requirements:
 def find_version(*file_paths):
     import os
     import re
+
     """
     This pattern was modeled on a method from the Python Packaging User Guide:
         https://packaging.python.org/en/latest/single_source_version.html
@@ -28,8 +29,9 @@ def find_version(*file_paths):
     base_module_file = os.path.join(*file_paths)
     with open(base_module_file) as f:
         base_module_data = f.read()
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              base_module_data, re.M)
+    version_match = re.search(
+        r"^__version__ = ['\"]([^'\"]*)['\"]", base_module_data, re.M
+    )
     if version_match:
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
@@ -37,7 +39,7 @@ def find_version(*file_paths):
 
 setup(
     name=LIBRARY,
-    version=find_version('pyclickup', 'globals.py'),
+    version=find_version("pyclickup", "globals.py"),
     description="A python wrapper for the ClickUp API",
     long_description=long_description,
     author="Jacobi Petrucciani",
