@@ -270,8 +270,8 @@ class Task(BaseModel):
         self,
         name=None,  # string
         content=None,  # string
-        add_assignees=None,  # integer or user object
-        remove_assignees=None,  # integer or user object
+        add_assignees=None,  # list of integers, or user objects
+        remove_assignees=None,  # list of integers, or user objects
         status=None,  # string
         priority=None,  # integer
         due_date=None,  # integer posix time, or python datetime
