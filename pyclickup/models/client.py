@@ -58,7 +58,7 @@ class ClickUp:
     def user(self) -> User:
         """get the user associated with this token"""
         if not self._user or not self.cache:
-            self._user = User(self.get("user"), client=self)
+            self._user = User(self.get("user"), client=self)  # type: ignore
         return self._user
 
     @property

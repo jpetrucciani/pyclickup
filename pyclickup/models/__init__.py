@@ -7,7 +7,7 @@ from pyclickup.globals import DEFAULT_STATUSES, LIBRARY
 from pyclickup.models.error import MissingClient
 from pyclickup.utils.text import snakeify, ts_to_datetime, datetime_to_ts
 from requests.models import Response
-from typing import Any, Dict, List as ListType, Union
+from typing import Any, Dict, List as ListType, Union  # noqa
 
 
 class BaseModel:

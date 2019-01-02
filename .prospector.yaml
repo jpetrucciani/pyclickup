@@ -15,6 +15,7 @@ pylint:
     - broad-except
     - import-error
     - import-self
+    - protected-access
     - logging-format-interpolation
     - missing-docstring
     - no-self-use
