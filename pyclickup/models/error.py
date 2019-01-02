@@ -21,3 +21,7 @@ class PyClickUpException(Exception):
 
 class RateLimited(PyClickUpException):
     """request received a 429 - you are currently rate limited"""
+
+
+class MissingClient(PyClickUpException):
+    """no client set for this object"""

@@ -175,7 +175,7 @@ class ClickUp:
         name: str,  # string
         content: str,  # string
         status: str,  # string
-        assignees: list = None,  # array
+        assignees: List[Union[int, User]] = None,  # list of integers, or user objects
         priority: int = None,  # integer
         due_date: Union[int, datetime] = None,  # integer posix time, or python datetime
     ) -> Any:

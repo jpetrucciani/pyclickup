@@ -64,6 +64,10 @@ def test_spaces():
 
     assert is_list_of_type(space.statuses, Status)
 
+    space_check = team.get_space("12345")
+    assert space_check
+    assert space_check == space
+
 
 def test_projects():
     """testing if we can access projects"""
@@ -81,6 +85,10 @@ def test_projects():
 
     assert is_list_of_type(project.statuses, Status)
     assert is_list_of_type(project.lists, List)
+
+    project_check = space.get_project("1234")
+    assert project_check
+    assert project_check == project
 
 
 def test_lists():

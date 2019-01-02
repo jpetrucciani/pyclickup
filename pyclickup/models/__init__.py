@@ -2,9 +2,12 @@
 models for each object in the clickup api
 """
 import json
+from datetime import datetime
 from pyclickup.globals import DEFAULT_STATUSES, LIBRARY
+from pyclickup.models.error import MissingClient
 from pyclickup.utils.text import snakeify, ts_to_datetime, datetime_to_ts
-from typing import Any
+from requests.models import Response
+from typing import Any, Dict, List as ListType, Union
 
 
 class BaseModel:
@@ -12,6 +15,7 @@ class BaseModel:
 
     def __init__(self, data: dict, client: Any = None, **kwargs: Any) -> None:
         """constructor"""
+        self.id = None
         self._data = {**data, **kwargs}
         self._json = self._jsond(data)
         self._client = client
@@ -79,13 +83,13 @@ class List(BaseModel):
 
     def create_task(
         self,
-        name,  # string
-        content="",  # optional, but nice
-        assignees=None,  # list of User objects, or int IDs
-        status="Open",  # needs to match your given statuses for the list
-        priority=0,  # default to no priority (0). check Task class for enum
-        due_date=None,  # integer posix time, or python datetime
-    ):
+        name: str,  # string
+        content: str = "",  # optional, but nice
+        assignees: ListType[Union[int, User]] = None,  # list of User objects, or ints
+        status: str = "Open",  # needs to match your given statuses for the list
+        priority: int = 0,  # default to no priority (0). check Task class for enum
+        due_date: Union[int, datetime] = None,  # integer posix time, or python datetime
+    ) -> Union[list, dict, Response]:
         """
         creates a task within this list, returning the id of the task.
 
@@ -93,13 +97,18 @@ class List(BaseModel):
         this will return the ID of the newly created task,
         but you'll need to re-query the list for tasks to get the task object
         """
-        task_data = {"name": name, "content": content, "status": status}
+        if not self._client:
+            raise MissingClient()
+        task_data = {
+            "name": name,
+            "content": content,
+            "status": status,
+        }  # type: Dict[str, Any]
 
-        if assignees and isinstance(list, assignees):
-            if isinstance(User, assignees[0]):
-                task_data["assignees"] = [x.id for x in assignees]
-            elif isinstance(int, assignees[0]):
-                task_data["assignees"] = assignees
+        if assignees:
+            task_data["assignees"] = [
+                x if isinstance(x, int) else x.id for x in assignees
+            ]
 
         if due_date:
             task_data["due_date"] = (
@@ -137,12 +146,22 @@ class Project(BaseModel):
         """repr"""
         return "<{}.Project[{}] '{}'>".format(LIBRARY, self.id, self.name)
 
-    def create_list(self, list_name):
+    def create_list(self, list_name: str) -> List:
         """creates a new list in this project: TODO get it updating"""
+        if not self._client:
+            raise MissingClient()
         new_list = self._client.post(
             "project/{}/list".format(self.id), data={"name": list_name}
         )
         return new_list
+
+    def get_list(self, list_id: str) -> List:
+        """
+        gets a list by it's ID.
+        Currently there is no get API call for this, so until API v2 is live,
+        we have to do these this way
+        """
+        return [x for x in self.lists if x.id == list_id][0]
 
     def get_tasks(self, **kwargs):
         """gets tasks for the project"""
@@ -183,6 +202,14 @@ class Space(BaseModel):
             ]
         return self._projects
 
+    def get_project(self, project_id: str) -> Project:
+        """
+        gets a project by it's ID.
+        Currently there is no get API call for this, so until API v2 is live,
+        we have to do these this way
+        """
+        return [x for x in self.projects if x.id == project_id][0]
+
     def get_tasks(self, **kwargs):
         """gets tasks for the space"""
         return self._client._get_tasks(self.team.id, space_ids=[self.id], **kwargs)
@@ -207,12 +234,21 @@ class Team(BaseModel):
 
     @property
     def spaces(self):
+        """gets a list of all the spaces in this team"""
         if not self._spaces or not self._client.cache:
             self._spaces = [
                 Space(x, client=self._client, team=self)
                 for x in self._client.get("team/{}/space".format(self.id))["spaces"]
             ]
         return self._spaces
+
+    def get_space(self, space_id: str) -> Space:
+        """
+        gets a space by it's ID.
+        Currently there is no get API call for this, so until API v2 is live,
+        we have to do these this way
+        """
+        return [x for x in self.spaces if x.id == space_id][0]
 
     def get_tasks(self, **kwargs):
         """gets tasks for the team"""
@@ -268,15 +304,17 @@ class Task(BaseModel):
 
     def update(
         self,
-        name=None,  # string
-        content=None,  # string
-        add_assignees=None,  # list of integers, or user objects
-        remove_assignees=None,  # list of integers, or user objects
-        status=None,  # string
-        priority=None,  # integer
-        due_date=None,  # integer posix time, or python datetime
-    ):
+        name: str = None,  # string
+        content: str = None,  # string
+        add_assignees: ListType[Union[int, User]] = None,
+        remove_assignees: ListType[Union[int, User]] = None,
+        status: str = None,  # string
+        priority: int = None,  # integer
+        due_date: Union[int, datetime] = None,  # integer posix time, or python datetime
+    ) -> Union[list, dict, Response]:
         """updates the task"""
+        if not self._client:
+            raise MissingClient()
         if not add_assignees:
             add_assignees = []
         if not remove_assignees:
@@ -287,7 +325,7 @@ class Task(BaseModel):
                 "add": [x if isinstance(x, int) else x.id for x in add_assignees],
                 "rem": [x if isinstance(x, int) else x.id for x in remove_assignees],
             }
-        }
+        }  # type: Dict[str, Any]
 
         if name:
             data["name"] = name
