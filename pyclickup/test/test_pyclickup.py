@@ -2,8 +2,10 @@
 a base test suite for pyclickup
 """
 from datetime import datetime
-from pyclickup.models import List, Project, Space, Status, Tag, Task, Team, User
-from pyclickup.models.client import test_client
+from pyclickup.models import List, Project, Space, Status, Tag, Task, Team, User, LIBRARY
+from pyclickup.models.client import test_client, ClickUp
+
+from ..globals import __version__, TEST_TOKEN
 
 
 CLICKUP = test_client()
@@ -14,6 +16,24 @@ def is_list_of_type(check_list, check_type):
     assert isinstance(check_list, list)
     assert isinstance(check_list[0], check_type)
     return True
+
+
+def test_user_agent():
+    """tests the default user agent"""
+    headers = CLICKUP.headers
+    assert isinstance(headers, (dict, ))
+    assert headers['User-Agent'] == '{}/{}'.format(
+        LIBRARY,
+        __version__
+    )
+
+
+def test_custom_user_agent():
+    """tests the custom user agent"""
+    test_user_agent = 'brwnppr/0.96'
+    headers = ClickUp(token=TEST_TOKEN, user_agent=test_user_agent, ).headers
+    assert isinstance(headers, (dict, ))
+    assert headers['User-Agent'] == test_user_agent
 
 
 def test_user():
