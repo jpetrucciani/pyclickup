@@ -30,7 +30,7 @@ class ClickUp:
         api_url: str = API_URL,
         cache: bool = True,
         debug: bool = False,
-        user_agent: str = '{}/{}'.format(LIBRARY, __version__)
+        user_agent: str = "{}/{}".format(LIBRARY, __version__),
     ) -> None:
         """creates a new client"""
         if not token:

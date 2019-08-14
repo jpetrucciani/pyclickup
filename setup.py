@@ -4,6 +4,7 @@ pip setup file
 """
 from setuptools import setup, find_packages
 
+
 LIBRARY = "pyclickup"
 
 
