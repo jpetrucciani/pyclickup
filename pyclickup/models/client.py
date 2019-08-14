@@ -30,6 +30,7 @@ class ClickUp:
         api_url: str = API_URL,
         cache: bool = True,
         debug: bool = False,
+        user_agent: str = '{}/{}'.format(LIBRARY, __version__)
     ) -> None:
         """creates a new client"""
         if not token:
@@ -39,6 +40,7 @@ class ClickUp:
         self.version = __version__
         self.cache = cache
         self.debug = debug
+        self.user_agent = user_agent
 
         # cache
         self._user = None  # type: Optional[User]
@@ -51,7 +53,7 @@ class ClickUp:
             "Accept": "application/json",
             "AcceptEncoding": "gzip, deflate",
             "Authorization": self.token,
-            "User-Agent": "{}/{}".format(LIBRARY, self.version),
+            "User-Agent": self.user_agent,
         }
 
     @property
