@@ -15,7 +15,7 @@ class BaseModel:
 
     def __init__(self, data: dict, client: Any = None, **kwargs: Any) -> None:
         """constructor"""
-        self.id = None
+        self.id = None  # pylint: disable=invalid-name
         self._data = {**data, **kwargs}
         self._json = self._jsond(data)
         self._client = client
@@ -57,28 +57,39 @@ class Status(BaseModel):
 class List(BaseModel):
     """List model"""
 
+    def __init__(self, data: dict, **kwargs: Any) -> None:
+        """override"""
+        self.name = ""
+        super(List, self).__init__(data, **kwargs)
+
     def __repr__(self):
         """repr"""
         return "<{}.List[{}] '{}'>".format(LIBRARY, self.id, self.name)
 
-    def rename(self, new_name):
+    def rename(self, new_name: str) -> Response:
         """renames a list"""
+        if not self._client:
+            raise MissingClient()
         rename_call = self._client.put(
             "list/{}".format(self.id), data={"name": new_name}
         )
         self.name = new_name
         return rename_call
 
-    def get_tasks(self, **kwargs):
+    def get_tasks(self, **kwargs) -> ListType["Task"]:
         """gets tasks for the list"""
+        if not self._client:
+            raise MissingClient()
         return self._client._get_tasks(
-            self.project.space.team.id, list_ids=[self.id], **kwargs
+            self.project.space.team.id, list_ids=[self.id], **kwargs  # type: ignore
         )
 
-    def get_all_tasks(self, **kwargs):
+    def get_all_tasks(self, **kwargs) -> ListType["Task"]:
         """gets every task for this list"""
+        if not self._client:
+            raise MissingClient()
         return self._client._get_all_tasks(
-            self.project.space.team.id, list_ids=[self.id], **kwargs
+            self.project.space.team.id, list_ids=[self.id], **kwargs  # type: ignore
         )
 
     def create_task(

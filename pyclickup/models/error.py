@@ -16,7 +16,7 @@ class PyClickUpException(Exception):
                 exception=self.__class__.__name__, doc=self.__doc__, extra=extra
             )
         )
-        Exception.__init__(self, *args, **kwargs)
+        Exception.__init__(self, *args)
 
 
 class RateLimited(PyClickUpException):
