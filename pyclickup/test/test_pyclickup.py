@@ -161,3 +161,23 @@ def test_tasks():
 
     all_tasks_for_team = team.get_all_tasks(page_limit=4)
     assert is_list_of_type(all_tasks_for_team, Task)
+
+
+def test_get_task_by_id():
+    """test v2 get task by id"""
+    task = CLICKUP.get_task("9hz")
+    assert isinstance(task, Task)
+
+
+def test_delete_task_by_id():
+    """test v2 delete task by id"""
+    deleted = CLICKUP.delete_task("9xh")
+    assert deleted
+
+
+def test_get_task_members():
+    """test v2 get task members"""
+    task = CLICKUP.get_task("9hz")
+    members = task.members
+    assert isinstance(members, list)
+    assert isinstance(members[0], User)

@@ -3,14 +3,18 @@ globals
 """
 
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 
 LIBRARY = "pyclickup"
+
 API_URL = "https://api.clickup.com/api/v1/"
+TEST_API_URL = "https://private-anon-3c8aafd4f8-clickup.apiary-mock.com/api/v1/"
+
+API_V2_URL = "https://api.clickup.com/api/v2/"
+TEST_API_V2_URL = "https://private-anon-316fee4eea-clickup20.apiary-mock.com/api/v2/"
 
 
-TEST_API_URL = "https://private-anon-efe850a7d7-clickup.apiary-mock.com/api/v1/"
 TEST_TOKEN = "access_token"
 
 

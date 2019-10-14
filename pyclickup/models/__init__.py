@@ -1,5 +1,6 @@
 """
-models for each object in the clickup api
+@author Jacobi Petrucciani
+@desc models for each object in the clickup api
 """
 import json
 from datetime import datetime
@@ -11,7 +12,9 @@ from typing import Any, Dict, List as ListType, Union  # noqa
 
 
 class BaseModel:
-    """basic model that just parses camelCase json to snake_case keys"""
+    """
+    @desc basic model that just parses camelCase json to snake_case keys
+    """
 
     def __init__(self, data: dict, client: Any = None, **kwargs: Any) -> None:
         """constructor"""
@@ -30,6 +33,17 @@ class BaseModel:
     def _jsonl(self, dictionary: str) -> dict:
         """json loads"""
         return json.loads(dictionary)
+
+    def _get(self, path: str, **kwargs) -> Union[list, dict, Response]:
+        """
+        @cc 2
+        @desc make a get request with our client
+        @arg path: the path to get
+        @ret a response type object
+        """
+        if not self._client:
+            raise MissingClient()
+        return self._client.get(path, **kwargs)
 
 
 class User(BaseModel):
@@ -352,3 +366,24 @@ class Task(BaseModel):
             )
 
         return self._client.put(path, data=data)
+
+    def delete(self) -> bool:
+        """
+        @cc 2
+        @desc v2 delete this task
+        @ret success
+        """
+        if not self._client:
+            raise MissingClient()
+        return self._client.delete_task(self.id)  # type: ignore
+
+    @property
+    def members(self) -> ListType[User]:
+        """
+        @cc 1
+        @desc get the members associated with this task
+        @ret a list of users on this task
+        @link api: https://jsapi.apiary.io/apis/clickup20/reference/0/members/get-task-members.html
+        """
+        member = self._get("task/{}/member".format(self.id), version=2)
+        return [User(x, client=self._client) for x in member["members"]]  # type: ignore
