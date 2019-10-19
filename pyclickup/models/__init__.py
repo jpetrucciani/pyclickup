@@ -68,6 +68,54 @@ class Status(BaseModel):
         return "<{}.Status[{}] '{}'>".format(LIBRARY, self.orderindex, self.status)
 
 
+class Comment(BaseModel):
+    """Comment object"""
+
+    def __init__(self, data, **kwargs):
+        """override to parse the data"""
+        super(Comment, self).__init__(data, **kwargs)
+        self.user = User(self.user, client=self._client)
+        self.assignee = User(self.assignee, client=self._client)
+        self.date = ts_to_datetime(self.date) if self.date else None
+
+    def __repr__(self):
+        """repr"""
+        return "<{}.Comment[{}] '{}'>".format(LIBRARY, self.id, self.text)
+
+    def update(
+        self,
+        comment_text: str = None,  # string
+        assignee: Union[int, User] = None,
+        resolved: bool = False,  # boolean
+    ) -> Union[list, dict, Response]:
+        """updates the comment"""
+        if not self._client:
+            raise MissingClient()
+        if not comment_text:
+            comment_text = self.comment_text
+        if not assignee:
+            assignee = self.assignee
+
+        assignee = assignee if isinstance(assignee, int) else assignee.id
+        path = "comment/{}".format(self.id)
+        task_data = {
+            "assignee": assignee,
+            "comment_text": comment_text,
+            "resolved": resolved,
+        }  # type: Dict[str, Any]
+        return self._client.put(path, data=data)
+
+    def delete(self) -> bool:
+        """
+        @cc 2
+        @desc v2 delete this task
+        @ret success
+        """
+        if not self._client:
+            raise MissingClient()
+        return self._client.delete_comment(self.id)  # type: ignore
+
+
 class List(BaseModel):
     """List model"""
 
@@ -105,6 +153,13 @@ class List(BaseModel):
         return self._client._get_all_tasks(
             self.project.space.team.id, list_ids=[self.id], **kwargs  # type: ignore
         )
+
+    @property
+    def comments(self) -> ListType[Comment]:
+        """gets comments for this list"""
+        if not self._client:
+            raise MissingClient()
+        return self._client._get_comments(self.id, "list")  # type: ignore
 
     def create_task(
         self,
@@ -387,3 +442,11 @@ class Task(BaseModel):
         """
         member = self._get("task/{}/member".format(self.id), version=2)
         return [User(x, client=self._client) for x in member["members"]]  # type: ignore
+
+    @property
+    def comments(self) -> ListType[Comment]:
+        """gets comments for this list"""
+        if not self._client:
+            raise MissingClient()
+        return self._client._get_comments(self.id, "task")  # type: ignore
+

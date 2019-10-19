@@ -14,7 +14,7 @@ from pyclickup.globals import (
     TEST_API_URL,
     TEST_API_V2_URL,
 )
-from pyclickup.models import User, Task, Team
+from pyclickup.models import User, Task, Team, Comment
 from pyclickup.models.error import RateLimited
 from pyclickup.utils.text import datetime_to_ts, filter_locals
 from typing import Any, Dict, List, Optional, Union  # noqa
@@ -250,6 +250,49 @@ class ClickUp:
                 due_date if isinstance(due_date, int) else datetime_to_ts(due_date)
             )
         return self.post("list/{}/task".format(list_id), data=data)
+
+    def _create_comment(
+        self,
+        id: str,
+        id_type: str,
+        comment_text: str,  # string
+        assignee: Union[int, User],
+    ) -> Any:
+        """creates a comment on either a list, task or view"""
+        if id_type not in ["list", "task", "view"]:
+            raise Exception("id_type is invalid")
+
+        data = {
+            "assignee": assignee if isinstance(assignee, int) else assignee.id,
+            "content": comment_text,
+        }  # type: Dict[str, Any]
+
+        return self.post("{}/{}/comment".format(id_type, id), data=data, version=2)
+
+    def _get_comments(self, id: str, id_type: str) -> List[Comment]:
+        """gets comments on either a list, task or view"""
+        if id_type not in ["list", "task", "view"]:
+            raise Exception("id_type is invalid")
+
+        comments_data = self.get("{}/{}/comment".format(id_type, id), version=2)
+        if not isinstance(comments_data, dict):
+            raise Exception("no comments found")
+
+        return [Comment(x, client=self) for x in comments_data["comments"]]
+
+    def delete_comment(self, comment_id: str) -> bool:
+        """
+        @cc 2
+        @desc v2: delete comment by id!
+        @arg comment_id: the id to delete
+        @ret success
+        """
+        try:
+            self.delete("comment/{}".format(comment_id), version=2)
+            return True
+        except Exception:
+            self._log("failed to delete comment `{}`".format(comment_id))
+            return False
 
 
 def test_client() -> ClickUp:

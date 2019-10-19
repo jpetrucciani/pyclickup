@@ -12,6 +12,7 @@ from pyclickup.models import (
     Task,
     Team,
     User,
+    Comment,
 )
 from pyclickup.models.client import test_client, ClickUp
 from pyclickup.globals import __version__, TEST_TOKEN
@@ -181,3 +182,50 @@ def test_get_task_members():
     members = task.members
     assert isinstance(members, list)
     assert isinstance(members[0], User)
+
+
+# def test_comments():
+#     """testing if we can generate a list of Comments"""
+#     team = CLICKUP.teams[0]
+#     tasks = team.get_tasks()
+#     assert tasks
+#     assert isinstance(tasks, list)
+#     task = tasks[0]
+#     assert isinstance(task, Task)
+
+
+def test_get_comments_by_task():
+    """test v2 get task by id"""
+    task = CLICKUP.get_task("9hz")
+    assert isinstance(task, Task)
+
+    comments = task.comments
+    assert isinstance(comments, list)
+    comment = comments[0]
+    assert isinstance(comment, Comment)
+
+
+def test_delete_comment_by_id():
+    """test v2 delete comment by id"""
+    deleted = CLICKUP.delete_comment("456")
+    assert deleted
+
+
+def test_create_comment():
+    """test v2 create comment by"""
+    user = CLICKUP.user
+    new_comment = CLICKUP._create_comment("9hz", "task", "test", user)
+    assert new_comment
+
+
+def test_update_comment():
+    """test v2 create comment by"""
+    user = CLICKUP.user
+
+    comments = CLICKUP._get_comments("9hz", "task")
+    assert isinstance(comments, list)
+    comment = comments[0]
+
+    updated_comment = comment.update("new", user, True)
+    assert updated_comment
+
