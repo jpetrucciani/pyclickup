@@ -100,12 +100,16 @@ class List(BaseModel):
         status: str = "Open",  # needs to match your given statuses for the list
         priority: int = 0,  # default to no priority (0). check Task class for enum
         due_date: Union[int, datetime] = None,  # integer posix time, or python datetime
+        check_required_custom_fields: bool = False,  # is an option to indicate whether or not your new task will include data for required Custom Fields (true) or not (false)
+        custom_fields: ListType[Dict[str, Any]] = [],  # List of {"id": "", "value": ""} dicts for custom fields
+        parent: str = None,  # ability to create subtask
+
     ) -> Union[list, dict, Response]:
         """
         creates a task within this list, returning the id of the task.
 
         unfortunately right now, there is no way to retreive a task by id
-        this will return the ID of the newly created task,
+        this will return the new task containing the id of the newly created task,
         but you'll need to re-query the list for tasks to get the task object
         """
         if not self._client:
@@ -128,11 +132,18 @@ class List(BaseModel):
 
         if priority > 0:
             task_data["priority"] = priority
+        
+        if parent:
+            task_data["parent"] = parent
+    
+        task_data["check_required_custom_fields"] = check_required_custom_fields
+        task_data["custom_fields"] = custom_fields
 
-        new_task_call = self._client.post(
-            "list/{}/task".format(self.id), data=task_data
+        new_task = self._client.post(
+            "list/{}/task".format(self.id), json=task_data
         )
-        return new_task_call["id"]
+
+        return new_task
 
 
 class Project(BaseModel):
