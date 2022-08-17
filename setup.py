@@ -31,7 +31,7 @@ setup(
     keywords="clickup python",
     url=f"{__user__}/{__library__}.git",
     download_url=f"{__user__}/{__library__}.git",
-    license="LICENSE",
+    license="MIT",
     packages=find_packages(),
     install_requires=INSTALL_REQUIRES,
     classifiers=[
