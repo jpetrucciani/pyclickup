@@ -8,6 +8,7 @@ ignore-patterns:
   - .*\.html
   - docs/.*
   - tmp.py
+  - setup.py
 
 pylint:
   disable:
@@ -39,11 +40,13 @@ mccabe:
   options:
     max-complexity: 30
 
-pep8:
+pycodestyle:
   disable:
     - N802
     - N807
+    - N818
     - W503
+    - W605
   options:
     max-line-length: 100
     single-line-if-stmt: n
@@ -53,21 +56,18 @@ vulture:
 
 pyroma:
   run: false
-  disable:
-    - PYR19
-    - PYR16
 
-pep257:
+bandit:
+  run: true
+
+pydocstyle:
   disable:
     - D000
     - D100
-    - D101
-    - D102
-    - D103
     - D104
-    - D105
     - D107
     - D200
+    - D202
     - D203
     - D205
     - D212
@@ -78,3 +78,9 @@ pep257:
     - D404
     - D403
     - D415
+
+pyflakes:
+  disable:
+    - F401
+    - F403
+    - F999

@@ -15,6 +15,7 @@
 import os
 import sys
 from unittest.mock import MagicMock
+from typing import Any, Dict
 
 
 class Mock(MagicMock):
@@ -35,7 +36,7 @@ from pyclickup.globals import __version__  # noqa
 # -- Project information -----------------------------------------------------
 
 project = "pyclickup"
-copyright = "2018, Jacobi Petrucciani"
+copyright = "2022, Jacobi Petrucciani"
 author = "Jacobi Petrucciani"
 
 # The short X.Y version
@@ -121,7 +122,7 @@ htmlhelp_basename = "pyclickupdoc"
 
 # -- Options for LaTeX output ------------------------------------------------
 
-latex_elements = {
+latex_elements: Dict[Any, Any] = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',

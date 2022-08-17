@@ -11,7 +11,7 @@ API_URL = "https://api.clickup.com/api/v1/"
 
 
 TEST_API_URL = "https://private-anon-efe850a7d7-clickup.apiary-mock.com/api/v1/"
-TEST_TOKEN = "access_token"
+TEST_TOKEN = "access_token"  # nosec
 
 
 DEFAULT_STATUSES = [
