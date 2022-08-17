@@ -30,7 +30,7 @@ class ClickUp:
         api_url: str = API_URL,
         cache: bool = True,
         debug: bool = False,
-        user_agent: str = "{}/{}".format(LIBRARY, __version__),
+        user_agent: str = f"{LIBRARY}/{__version__}",
     ) -> None:
         """creates a new client"""
         if not token:
@@ -75,7 +75,7 @@ class ClickUp:
 
     def get_team_by_id(self, team_id: str) -> Team:
         """given an team_id, return the team if it exists"""
-        team_data = self.get("team/{}".format(team_id))
+        team_data = self.get(f"team/{team_id}")
         if not isinstance(team_data, dict):
             raise Exception("no team found")
         return Team(team_data["team"], client=self)
@@ -89,7 +89,7 @@ class ClickUp:
     def _req(self, path: str, method: str = "get", **kwargs: Any) -> Response:
         """requests wrapper"""
         full_path = urllib.parse.urljoin(self.api_url, path)
-        self._log("[{}]: {}".format(method.upper(), full_path))
+        self._log(f"[{method.upper()}]: {full_path}")
         request = requests.request(method, full_path, headers=self.headers, **kwargs)
         if request.status_code == 429:
             raise RateLimited()
@@ -135,7 +135,7 @@ class ClickUp:
         date_created_lt: int = None,  # integer, posix time
         date_updated_gt: int = None,  # integer, posix time
         date_updated_lt: int = None,  # integer, posix time
-        **kwargs: Any
+        **kwargs: Any,
     ) -> List[Task]:
         """fetches the tasks according to the given options"""
         params = filter_locals(locals(), extras=["team_id"])
@@ -145,14 +145,15 @@ class ClickUp:
                 params[option] = str(params[option]).lower()
 
         options = [
-            "{}{}={}".format(
+            "{}{}={}".format(  # pylint: disable=consider-using-f-string
                 x,
                 "[]" if x in self.task_list_options else "",
                 ",".join(params[x]) if x in self.task_list_options else params[x],
             )
             for x in params
         ]
-        path = "team/{}/task?{}".format(team_id, "&".join(options))
+        opts = "&".join(options)
+        path = f"team/{team_id}/task?{opts}"
         task_list = self.get(path)
         if not isinstance(task_list, dict):
             return []
@@ -195,7 +196,7 @@ class ClickUp:
             data["due_date"] = (
                 due_date if isinstance(due_date, int) else datetime_to_ts(due_date)
             )
-        return self.post("list/{}/task".format(list_id), data=data)
+        return self.post(f"list/{list_id}/task", data=data)
 
 
 def test_client() -> ClickUp:
