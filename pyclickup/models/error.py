@@ -10,12 +10,8 @@ class PyClickUpException(Exception):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         extra = ""
         if args:
-            extra = '\n| extra info: "{extra}"'.format(extra=args[0])
-        print(
-            "[{exception}]: {doc}{extra}".format(
-                exception=self.__class__.__name__, doc=self.__doc__, extra=extra
-            )
-        )
+            extra = f'\n| extra info: "{args[0]}"'
+        print(f"[{self.__class__.__name__}]: {self.__doc__}{extra}")
         Exception.__init__(self, *args)
 
 

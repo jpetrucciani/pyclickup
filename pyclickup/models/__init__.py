@@ -39,11 +39,11 @@ class User(BaseModel):
         """override"""
         if "user" in data.keys():
             data = data["user"]
-        super(User, self).__init__(data, **kwargs)
+        super().__init__(data, **kwargs)
 
     def __repr__(self):
         """repr"""
-        return "<{}.User[{}] '{}'>".format(LIBRARY, self.id, self.username)
+        return f"<{LIBRARY}.User[{self.id}] '{self.username}'>"
 
 
 class Status(BaseModel):
@@ -51,7 +51,7 @@ class Status(BaseModel):
 
     def __repr__(self):
         """repr"""
-        return "<{}.Status[{}] '{}'>".format(LIBRARY, self.orderindex, self.status)
+        return f"<{LIBRARY}.Status[{self.orderindex}] '{self.status}'>"
 
 
 class List(BaseModel):
@@ -60,19 +60,17 @@ class List(BaseModel):
     def __init__(self, data: dict, **kwargs: Any) -> None:
         """override"""
         self.name = ""
-        super(List, self).__init__(data, **kwargs)
+        super().__init__(data, **kwargs)
 
     def __repr__(self):
         """repr"""
-        return "<{}.List[{}] '{}'>".format(LIBRARY, self.id, self.name)
+        return f"<{LIBRARY}.List[{self.id}] '{self.name}'>"
 
     def rename(self, new_name: str) -> Response:
         """renames a list"""
         if not self._client:
             raise MissingClient()
-        rename_call = self._client.put(
-            "list/{}".format(self.id), data={"name": new_name}
-        )
+        rename_call = self._client.put(f"list/{self.id}", data={"name": new_name})
         self.name = new_name
         return rename_call
 
@@ -140,7 +138,7 @@ class List(BaseModel):
         task_data["custom_fields"] = custom_fields
 
         new_task = self._client.post(
-            "list/{}/task".format(self.id), json=task_data
+            f"list/{self.id}/task", json=task_data
         )
 
         return new_task
@@ -151,7 +149,7 @@ class Project(BaseModel):
 
     def __init__(self, data, **kwargs):
         """override to parse the members"""
-        super(Project, self).__init__(data, **kwargs)
+        super().__init__(data, **kwargs)
         if self.override_statuses:
             self.statuses = (
                 [Status(x, client=self._client, project=self) for x in self.statuses]
@@ -166,14 +164,14 @@ class Project(BaseModel):
 
     def __repr__(self):
         """repr"""
-        return "<{}.Project[{}] '{}'>".format(LIBRARY, self.id, self.name)
+        return f"<{LIBRARY}.Project[{self.id}] '{self.name}'>"
 
     def create_list(self, list_name: str) -> List:
         """creates a new list in this project: TODO get it updating"""
         if not self._client:
             raise MissingClient()
         new_list = self._client.post(
-            "project/{}/list".format(self.id), data={"name": list_name}
+            f"project/{self.id}/list", data={"name": list_name}
         )
         return new_list
 
@@ -203,7 +201,7 @@ class Space(BaseModel):
 
     def __init__(self, data, **kwargs):
         """override to parse the members and statuses"""
-        super(Space, self).__init__(data, **kwargs)
+        super().__init__(data, **kwargs)
         self.statuses = [
             Status(x, client=self._client, space=self) for x in self.statuses
         ]
@@ -211,16 +209,15 @@ class Space(BaseModel):
 
     def __repr__(self):
         """repr"""
-        return "<{}.Space[{}] '{}'>".format(LIBRARY, self.id, self.name)
+        return f"<{LIBRARY}.Space[{self.id}] '{self.name}'>"
 
     @property
     def projects(self):
+        """get the list of projects in the space"""
         if not self._projects or not self._client.cache:
             self._projects = [
                 Project(x, client=self._client, space=self)
-                for x in self._client.get("space/{}/project".format(self.id))[
-                    "projects"
-                ]
+                for x in self._client.get(f"space/{self.id}/project")["projects"]
             ]
         return self._projects
 
@@ -246,13 +243,13 @@ class Team(BaseModel):
 
     def __init__(self, data, **kwargs):
         """override to parse the members"""
-        super(Team, self).__init__(data, **kwargs)
+        super().__init__(data, **kwargs)
         self.members = [User(x, client=self._client, team=self) for x in self.members]
         self._spaces = None
 
     def __repr__(self):
         """repr"""
-        return "<{}.Team[{}] '{}'>".format(LIBRARY, self.id, self.name)
+        return f"<{LIBRARY}.Team[{self.id}] '{self.name}'>"
 
     @property
     def spaces(self):
@@ -260,7 +257,7 @@ class Team(BaseModel):
         if not self._spaces or not self._client.cache:
             self._spaces = [
                 Space(x, client=self._client, team=self)
-                for x in self._client.get("team/{}/space".format(self.id))["spaces"]
+                for x in self._client.get(f"team/{self.id}/space")["spaces"]
             ]
         return self._spaces
 
@@ -286,7 +283,7 @@ class Tag(BaseModel):
 
     def __repr__(self):
         """repr"""
-        return "<{}.Tag '{}'>".format(LIBRARY, self.name)
+        return f"<{LIBRARY}.Tag '{self.name}'>"
 
 
 class Task(BaseModel):
@@ -303,7 +300,7 @@ class Task(BaseModel):
 
     def __init__(self, data, **kwargs):
         """override to parse the data"""
-        super(Task, self).__init__(data, **kwargs)
+        super().__init__(data, **kwargs)
         self.creator = User(self.creator, client=self._client)
         self.status = Status(self.status, client=self._client)
         self.tags = [Tag(x) for x in self.tags]
@@ -322,7 +319,7 @@ class Task(BaseModel):
 
     def __repr__(self):
         """repr"""
-        return "<{}.Task[{}] '{}'>".format(LIBRARY, self.id, self.name)
+        return f"<{LIBRARY}.Task[{self.id}] '{self.name}'>"
 
     def update(
         self,
@@ -341,7 +338,7 @@ class Task(BaseModel):
             add_assignees = []
         if not remove_assignees:
             remove_assignees = []
-        path = "task/{}".format(self.id)
+        path = f"task/{self.id}"
         data = {
             "assignees": {
                 "add": [x if isinstance(x, int) else x.id for x in add_assignees],
