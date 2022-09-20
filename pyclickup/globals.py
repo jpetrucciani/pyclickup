@@ -7,10 +7,10 @@ __version__ = "0.1.4"
 
 
 LIBRARY = "pyclickup"
-API_URL = "https://api.clickup.com/api/v1/"
+API_URL = "https://api.clickup.com/api/v2/"
 
 
-TEST_API_URL = "https://private-anon-efe850a7d7-clickup.apiary-mock.com/api/v1/"
+TEST_API_URL = "https://private-anon-efe850a7d7-clickup.apiary-mock.com/api/v2/"
 TEST_TOKEN = "access_token"  # nosec
 
 
