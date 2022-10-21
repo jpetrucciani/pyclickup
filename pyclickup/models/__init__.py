@@ -97,7 +97,9 @@ class List(BaseModel):
         assignees: ListType[Union[int, User]] = None,  # list of User objects, or ints
         status: str = "Open",  # needs to match your given statuses for the list
         priority: int = 0,  # default to no priority (0). check Task class for enum
+        start_date: Union[int, datetime] = None,  # integer posix time, or python datetime
         due_date: Union[int, datetime] = None,  # integer posix time, or python datetime
+        time_estimate: int = None,  # integer time in milliseconds
     ) -> Union[list, dict, Response]:
         """
         creates a task within this list, returning the id of the task.
@@ -119,6 +121,11 @@ class List(BaseModel):
                 x if isinstance(x, int) else x.id for x in assignees
             ]
 
+        if start_date:
+            task_data["start_date"] = (
+                start_date if isinstance(start_date, int) else datetime_to_ts(start_date)
+            )
+
         if due_date:
             task_data["due_date"] = (
                 due_date if isinstance(due_date, int) else datetime_to_ts(due_date)
@@ -126,6 +133,9 @@ class List(BaseModel):
 
         if priority > 0:
             task_data["priority"] = priority
+        
+        if time_estimate > 0:
+            task_data["time_estimate"] = time_estimate
 
         new_task_call = self._client.post(f"list/{self.id}/task", data=task_data)
         return new_task_call["id"]
